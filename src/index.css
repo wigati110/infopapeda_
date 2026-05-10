@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #c5a059;
+  --color-deep-brown: #1e1512;
+  --color-cream: #fdfbf9;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Montserrat", sans-serif;
+
+  --animate-in: in 0.3s ease-out;
+  --animate-bounce: bounce 1s infinite;
+  
+  @keyframes in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
+}
+
+.lux-card {
+  background-color: white;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--color-gold) 20%, transparent);
+  box-shadow: var(--shadow-sm);
+  transition-property: all;
+  transition-duration: 0.3s;
+}
+
+.lux-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--color-gold) 40%, transparent);
+}
+
+.lux-btn-primary {
+  background-color: var(--color-gold);
+  color: white;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition-property: all;
+}
+
+.lux-btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-gold) 90%, black);
+}
+
+.lux-btn-secondary {
+  border-width: 2px;
+  border-color: var(--color-gold);
+  color: var(--color-deep-brown);
+  background-color: transparent;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition-property: all;
+}
+
+.lux-btn-secondary:hover {
+  background-color: var(--color-gold);
+  color: white;
+}
+
+/* Custom Toast styles */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: var(--color-deep-brown);
+  color: var(--color-cream);
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-2xl);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  pointer-events: auto;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--color-gold) 30%, transparent);
+  display: flex;
+  items-center: center;
+  gap: 0.75rem;
+  animation: in 0.3s ease-out;
+}
+
+/* Input styles for admin */
+.admin-input-group {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: #e5e7eb;
+}
+
+.admin-input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.admin-input-group input, .admin-input-group textarea {
+  width: 100%;
+  background-color: white;
+  color: black;
+  font-weight: 600;
+  border-bottom-width: 2px;
+  border-color: #f3f4f6;
+  outline: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  transition-property: all;
+}
+
+.admin-input-group input:focus, .admin-input-group textarea:focus {
+  border-color: var(--color-gold);
+}
+
+.admin-sub-section {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border-left-width: 4px;
+  border-color: var(--color-gold);
+}
+
+.admin-sub-section h4 {
+  color: var(--color-deep-brown);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Specific requirement: sub-section inputs must be bright background with deep black text */
+.sub-section-input {
+  background-color: white;
+  color: black;
+  border-color: #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  width: 100%;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.sub-section-input:focus {
+  border-color: var(--color-gold);
+  outline: none;
+}
+
+/* Scrollbar */
+.lux-footer {
+  background-color: var(--color-deep-brown);
+  color: var(--color-cream);
+  padding: 4rem 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-gold) 20%, transparent);
+}
+
+.secret-trigger {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.secret-trigger:hover {
+  opacity: 1;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a88a4d;
+}
