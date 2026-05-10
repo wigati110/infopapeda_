@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "food": {
+      "title": "Food Article",
+      "description": "A food-related article for InfoPapeda.id",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "coverImage": { "type": "string", "description": "Base64 encoded image" },
+        "subSections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "image": { "type": "string", "description": "Base64 encoded image" }
+            }
+          }
+        },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "summary", "coverImage", "createdAt"]
+    }
+  },
+  "firestore": {
+    "artifacts/1:159087583663:web:c43838c3dcdb0a5c714f5a/public/data/foods": {
+      "schema": "food",
+      "description": "Collection of food articles"
+    }
+  }
+}

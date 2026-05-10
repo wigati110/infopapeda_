@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. GLOBAL SAFETY NET
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. HELPERS
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidFood(data) {
+      return data.title is string && data.title.size() <= 200
+          && data.summary is string && data.summary.size() <= 1000
+          && data.content is string && data.content.size() <= 10000
+          && data.coverImage is string && data.coverImage.size() <= 1000000 // Max 1MB Base64/URL
+          && data.author is string && data.author.size() <= 100;
+    }
+
+    // 3. FOODS COLLECTION (Public Read, Admin Write)
+    match /artifacts/{appId}/public/data/foods/{foodId} {
+      allow read: if true;
+      
+      allow create: if isAdmin() 
+          && isValidFood(incoming())
+          && incoming().createdAt == request.time;
+          
+      allow update: if isAdmin()
+          && isValidFood(incoming())
+          && incoming().createdAt == resource.data.createdAt // Immutable creation date
+          && (incoming().diff(resource.data).affectedKeys().hasOnly(['title', 'summary', 'content', 'coverImage', 'updatedAt', 'author']));
+          
+      allow delete: if isAdmin();
+    }
+
+    // 4. ADMINS COLLECTION (Self-Read, restricted write)
+    match /admins/{userId} {
+      allow read: if request.auth.uid == userId;
+      
+      // Khusus untuk demo: Admin baru bisa didaftarkan jika kredensial lokal lolos (diurus di App.tsx)
+      // Namun kita beri batasan ukuran data agar tidak disalahgunakan
+      allow write: if request.auth.uid == userId 
+          && incoming().username == 'admin' 
+          && incoming().keys().size() <= 10;
+    }
+  }
+}
