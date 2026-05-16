@@ -44,7 +44,9 @@ import {
   Heart,
   Laptop,
   Code2,
-  Wifi
+  Wifi,
+  UserCircle,
+  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AOS from 'aos';
@@ -115,6 +117,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number, message: string, type: 'success' | 'error' }[]>([]);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -259,39 +262,96 @@ export default function App() {
     else updateSubSection(index, 'image', base64);
   };
 
-  const renderSidebar = () => (
-    <aside className="fixed left-0 top-0 h-screen w-20 md:w-64 bg-deep-brown text-cream z-50 flex flex-col border-r border-gold/20">
-      <div className="p-6 flex items-center gap-3">
+  const renderRightSidebar = () => (
+    <>
+      {/* Overlay when sidebar is open */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
+
+      <aside className={`fixed right-0 top-0 h-screen w-64 bg-deep-brown text-cream z-50 flex flex-col border-l border-gold/20 shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-6 flex items-center justify-between border-b border-white/10">
+          <span className="font-serif text-xl font-bold tracking-widest text-gold">Akun & Navigasi</span>
+          <button onClick={() => setIsSidebarOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+            <X size={24} />
+          </button>
+        </div>
+        <nav className="flex-1 mt-6 space-y-2 px-4">
+          {[
+            { icon: <LayoutDashboard />, label: "Beranda", view: 'HOME' as ViewState },
+            { icon: <Users />, label: "Tim Kurator", view: 'PROFILE' as ViewState },
+            { icon: <Gamepad2 />, label: "Sago Pop", view: 'GAME' as ViewState },
+            { icon: <PlusCircle />, label: isAdminMode ? "Dashboard Admin" : "Login Admin", view: isAdminMode ? 'ADMIN_DASHBOARD' as ViewState : 'ADMIN_LOGIN' as ViewState },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => { setView(item.view); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center justify-start gap-4 p-4 rounded-xl transition-all ${view === item.view ? 'bg-gold text-deep-brown shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'hover:bg-white/5 text-gray-400'}`}
+            >
+              {item.icon}
+              <span className="font-sans font-medium text-sm">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+        {isAdminMode && (
+          <div className="p-4 border-t border-white/10">
+            <button onClick={() => { setIsAdminMode(false); setView('HOME'); setIsSidebarOpen(false); addToast("Admin Logged Out"); }} className="w-full flex items-center justify-start gap-4 p-4 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+              <LogOut /><span className="font-sans font-medium text-sm">Keluar Admin</span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
+  );
+
+  const renderNavbar = () => (
+    <nav className="fixed top-0 left-0 right-0 h-20 bg-deep-brown/95 backdrop-blur-md border-b border-gold/20 z-30 px-6 md:px-12 flex items-center justify-between shadow-sm">
+      <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('HOME')}>
         <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
           <span className="text-deep-brown font-serif font-bold text-xl">IP</span>
         </div>
-        <span className="hidden md:block font-serif text-xl font-bold tracking-widest text-gold text-nowrap">InfoPapeda</span>
+        <span className="hidden sm:block font-serif text-xl font-bold tracking-widest text-gold text-nowrap">InfoPapeda</span>
       </div>
-      <nav className="flex-1 mt-10 space-y-2 px-2 md:px-4">
+
+      {/* Main Menu Items (Desktop) */}
+      <div className="hidden md:flex items-center gap-8">
         {[
-          { icon: <LayoutDashboard />, label: "Beranda", view: 'HOME' as ViewState },
-          { icon: <Users />, label: "Tim Kurator", view: 'PROFILE' as ViewState },
-          { icon: <Gamepad2 />, label: "Sago Pop", view: 'GAME' as ViewState },
-          { icon: <PlusCircle />, label: isAdminMode ? "Dashboard Admin" : "Login Admin", view: isAdminMode ? 'ADMIN_DASHBOARD' as ViewState : 'ADMIN_LOGIN' as ViewState },
-        ].filter(item => item.label !== "Sago Pop").map((item) => (
-          <button
+          { label: 'Sejarah', view: 'SEJARAH' as ViewState },
+          { label: 'Filosofi', view: 'FILOSOFI' as ViewState },
+          { label: 'Tim Kurator', view: 'PROFILE' as ViewState },
+          { label: 'Kontak', view: 'CONTACT' as ViewState }
+        ].map((item) => (
+          <button 
             key={item.label}
             onClick={() => setView(item.view)}
-            className={`w-full flex items-center justify-center md:justify-start gap-4 p-4 rounded-xl transition-all ${view === item.view ? 'bg-gold text-deep-brown shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'hover:bg-white/5 text-gray-400'}`}
+            className={`font-sans text-sm tracking-widest uppercase transition-colors ${view === item.view ? 'text-gold font-bold' : 'text-cream/80 hover:text-gold'}`}
           >
-            {item.icon}
-            <span className="hidden md:block font-sans font-medium text-sm">{item.label}</span>
+            {item.label}
           </button>
         ))}
-      </nav>
-      {isAdminMode && (
-        <div className="p-4 border-t border-white/10">
-          <button onClick={() => { setIsAdminMode(false); setView('HOME'); addToast("Admin Logged Out"); }} className="w-full flex items-center justify-center md:justify-start gap-4 p-4 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
-            <LogOut /><span className="hidden md:block font-sans font-medium text-sm">Keluar Admin</span>
-          </button>
-        </div>
-      )}
-    </aside>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {/* Profile / Menu button */}
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className="text-gold p-2 hover:bg-white/5 rounded-full transition-colors flex items-center gap-2"
+        >
+          <span className="hidden sm:block font-sans text-xs uppercase tracking-widest text-cream/70">
+            {isAdminMode ? 'Admin' : 'Menu'}
+          </span>
+          <UserCircle size={28} />
+        </button>
+      </div>
+    </nav>
   );
 
   const renderHome = () => (
@@ -955,10 +1015,105 @@ export default function App() {
     );
   };
 
+  const renderSejarah = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      className="min-h-screen bg-cream text-deep-brown p-6 md:p-16"
+    >
+      <div className="max-w-4xl mx-auto mt-8">
+        <h2 className="text-5xl md:text-6xl font-serif text-deep-brown mb-8 text-center" data-aos="fade-up">Sejarah Papeda</h2>
+        <div className="w-24 h-1 bg-gold mx-auto mb-12" data-aos="fade-up" data-aos-delay="100"></div>
+        
+        <div className="space-y-8 font-sans text-lg leading-relaxed text-gray-700" data-aos="fade-up" data-aos-delay="200">
+          <p>
+            Papeda bukan sekadar makanan, melainkan saksi bisu perjalanan panjang peradaban masyarakat di Indonesia Timur, khususnya Papua dan Maluku. Sejarah mencatat bahwa sagu—bahan baku utama papeda—telah menjadi sumber kehidupan selama berabad-abad sebelum beras dikenal luas di Nusantara.
+          </p>
+          <div className="my-10 border-l-4 border-gold pl-6 italic text-xl text-deep-brown font-serif bg-white/40 p-6 rounded-r-xl shadow-sm">
+            "Sagu adalah anugerah alam yang membentuk pilar ketahanan pangan dan merangkai struktur sosial masyarakat pesisir."
+          </div>
+          <p>
+            Sejak zaman prasejarah, penduduk asli wilayah timur telah menguasai teknik ekstraksi pati dari batang pohon sagu (<i>Metroxylon sagu</i>). Pengetahuan ini diwariskan secara turun-temurun melalui tradisi lisan dan ritual adat. Pembuatan papeda melibatkan proses mengaduk tepung sagu dengan air mendidih hingga mencapai tekstur kental seperti lem, sebuah manifestasi dari kecerdasan lokal dalam mengolah sumber daya alam yang melimpah menjadi sumber karbohidrat utama.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-10">
+            <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80" alt="Bahan Tradisional" className="w-full h-80 object-cover rounded-2xl shadow-xl mix-blend-multiply border border-gold/20" />
+            <div className="flex flex-col justify-center">
+              <h3 className="text-3xl font-serif text-gold mb-6">Relasi dengan Alam</h3>
+              <p className="text-base text-gray-700 leading-relaxed">Masyarakat Papua memiliki ikatan spiritual yang mendalam dengan hutan sagu. Mereka memanen sagu secukupnya sesuai kebutuhan dan membiarkannya beregenerasi, mencerminkan kearifan ekologis tingkat tinggi yang menjaga kelestarian ekosistem rawa-rawa hutan jauh sebelum rentetan konsep keberlanjutan modern digaungkan di seluruh dunia.</p>
+            </div>
+          </div>
+          <p>
+            Seiring berjalannya waktu, papeda tetap mempertahankan keasliannya dan tak tergerus oleh laju modernisasi. Ia selalu disajikan dengan kuah kuning yang kaya akan rempah—kunyit, serai, daun jeruk, dan kemangi—berpadu sempurna dengan hasil tangkapan laut segar. Harmoni rasa ini menjadikannya bukan sekadar santapan, namun identitas tak terpisahkan dari bumi Nusantara bagian timur.
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const renderFilosofi = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      className="min-h-screen bg-deep-brown text-cream p-6 md:p-16 relative overflow-hidden"
+    >
+      {/* Abstract Background Element */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto mt-8 relative z-10">
+        <h2 className="text-5xl md:text-6xl font-serif text-gold mb-8 text-center" data-aos="fade-up">Filosofi Rasa</h2>
+        <div className="w-24 h-1 bg-white/20 mx-auto mb-16" data-aos="fade-up" data-aos-delay="100"></div>
+        
+        <div className="space-y-8" data-aos="fade-up" data-aos-delay="200">
+          <div className="bg-white/5 border border-white/10 p-10 rounded-2xl hover:border-gold/30 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-1 shadow-xl">
+            <h3 className="text-3xl font-serif text-gold mb-6 flex items-center gap-4"><Users className="w-8 h-8 text-white/50" /> Kolektivitas dan Persaudaraan</h3>
+            <p className="font-sans text-lg leading-relaxed text-cream/80">
+              Menikmati papeda memiliki tata cara yang unik. Sering kali, papeda disajikan dalam satu piring besar atau wadah kayu tradisional yang disebut <i>hote</i> untuk disantap bersama oleh seluruh anggota keluarga. Tradisi ini menumbuhkan rasa persaudaraan, kesetaraan, dan rasa sepenanggungan. Makan papeda dari satu wadah yang sama melambangkan hilangnya batas-batas pembatas relasi egoisme dan menegaskan kembali bahwa mereka semua berasal dari satu akar tradisi.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-10 rounded-2xl hover:border-gold/30 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-1 shadow-xl">
+            <h3 className="text-3xl font-serif text-gold mb-6 flex items-center gap-4"><Heart className="w-8 h-8 text-white/50" /> Sikap Sabar dan Kebijaksanaan</h3>
+            <p className="font-sans text-lg leading-relaxed text-cream/80">
+              Tekstur papeda yang amat lengket dan tebal mengajarkan makna kesabaran. Menikmati papeda tidak bisa dilakukan dengan tergesa-gesa; ia membutuhkan teknik tersendiri, dengan cara menggulungnya secara teratur menggunakan sepasang sumpit bambu yang disebut <i>gata-gata</i>. Hal ini adalah bentuk manifestasi dari kehati-hatian, perhitungan yang matang, serta kelembutan dalam menjalani dinamika kehidupan.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 p-10 rounded-2xl hover:border-gold/30 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-1 shadow-xl">
+            <h3 className="text-3xl font-serif text-gold mb-6 flex items-center gap-4"><BookOpen className="w-8 h-8 text-white/50" /> Keseimbangan Spektrum Hidup</h3>
+            <p className="font-sans text-lg leading-relaxed text-cream/80">
+              Dalam sajian komplitnya, papeda yang sengaja berasa tawar (sebagai perlambang murninya kejujuran dan netralitas) selalu dipertemukan dengan Ikan Kuah Kuning yang pekat kaya rasa dan pedas (perlambang dinamika dan kerasnya ujian). Gabungan kontradiktif ini justru menghasilkan paduan rasa yang sempurna. Filosofi ini mengajarkan bahwa tantangan, gejolak, dan rasa syukur memberi esensi luhur dan sangat memperkaya tatanan hidup yang sederhana tersebut.
+            </p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const renderComingSoon = (title: string) => (
+    <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 bg-cream text-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#c5a059 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-2xl mx-auto relative z-10"
+      >
+        <BookOpen className="w-16 h-16 text-gold mx-auto mb-6 opacity-80" />
+        <h2 className="text-4xl md:text-5xl font-serif text-deep-brown mb-4">{title}</h2>
+        <p className="text-gray-500 font-sans tracking-widest text-sm uppercase mb-8">Halaman ini sedang dalam tahap penyusunan oleh Tim Kurator</p>
+        <button onClick={() => setView('HOME')} className="px-6 py-3 border border-gold/50 text-gold hover:bg-gold hover:text-white transition-colors rounded-full font-sans uppercase tracking-widest text-xs font-bold w-fit mx-auto">
+          Kembali ke Beranda
+        </button>
+      </motion.div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen flex selection:bg-gold/30 selection:text-deep-brown">
-      {renderSidebar()}
-      <main className="flex-1 ml-20 md:ml-64 flex flex-col">
+    <div className="min-h-screen flex flex-col selection:bg-gold/30 selection:text-deep-brown">
+      {renderNavbar()}
+      {renderRightSidebar()}
+      <main className="flex-1 flex flex-col pt-20 overflow-x-hidden">
         <div className="flex-1">
           <AnimatePresence mode="wait">
             {view === 'HOME' && renderHome()}
@@ -970,6 +1125,8 @@ export default function App() {
             {view === 'DEVELOPER_INFO' && renderDeveloperInfo()}
             {view === 'ABOUT' && renderAbout()}
             {view === 'CONTACT' && renderContact()}
+            {view === 'SEJARAH' && renderSejarah()}
+            {view === 'FILOSOFI' && renderFilosofi()}
           </AnimatePresence>
         </div>
         {view !== 'GAME' && renderFooter()}
