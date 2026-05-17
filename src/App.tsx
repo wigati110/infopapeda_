@@ -262,96 +262,54 @@ export default function App() {
     else updateSubSection(index, 'image', base64);
   };
 
-  const renderRightSidebar = () => (
-    <>
-      {/* Overlay when sidebar is open */}
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
-          />
-        )}
-      </AnimatePresence>
-
-      <aside className={`fixed right-0 top-0 h-screen w-64 bg-deep-brown text-cream z-50 flex flex-col border-l border-gold/20 shadow-2xl transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="p-6 flex items-center justify-between border-b border-white/10">
-          <span className="font-serif text-xl font-bold tracking-widest text-gold">Akun & Navigasi</span>
-          <button onClick={() => setIsSidebarOpen(false)} className="text-gray-400 hover:text-white transition-colors">
-            <X size={24} />
-          </button>
-        </div>
-        <nav className="flex-1 mt-6 space-y-2 px-4">
-          {[
-            { icon: <LayoutDashboard />, label: "Beranda", view: 'HOME' as ViewState },
-            { icon: <Users />, label: "Tim Kurator", view: 'PROFILE' as ViewState },
-            { icon: <Gamepad2 />, label: "Sago Pop", view: 'GAME' as ViewState },
-            { icon: <PlusCircle />, label: isAdminMode ? "Dashboard Admin" : "Login Admin", view: isAdminMode ? 'ADMIN_DASHBOARD' as ViewState : 'ADMIN_LOGIN' as ViewState },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={() => { setView(item.view); setIsSidebarOpen(false); }}
-              className={`w-full flex items-center justify-start gap-4 p-4 rounded-xl transition-all ${view === item.view ? 'bg-gold text-deep-brown shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'hover:bg-white/5 text-gray-400'}`}
-            >
-              {item.icon}
-              <span className="font-sans font-medium text-sm">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-        {isAdminMode && (
-          <div className="p-4 border-t border-white/10">
-            <button onClick={() => { setIsAdminMode(false); setView('HOME'); setIsSidebarOpen(false); addToast("Admin Logged Out"); }} className="w-full flex items-center justify-start gap-4 p-4 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
-              <LogOut /><span className="font-sans font-medium text-sm">Keluar Admin</span>
-            </button>
-          </div>
-        )}
-      </aside>
-    </>
-  );
-
-  const renderNavbar = () => (
-    <nav className="fixed top-0 left-0 right-0 h-20 bg-deep-brown/95 backdrop-blur-md border-b border-gold/20 z-30 px-6 md:px-12 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('HOME')}>
-        <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center flex-shrink-0">
+  const renderSidebar = () => (
+    <aside className="fixed left-0 top-0 h-screen w-20 md:w-64 bg-deep-brown text-cream z-50 flex flex-col border-r border-gold/20 shadow-xl">
+      <div className="p-6 md:p-8 flex items-center gap-3 cursor-pointer border-b border-white/5" onClick={() => setView('HOME')}>
+        <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-gold/20">
           <span className="text-deep-brown font-serif font-bold text-xl">IP</span>
         </div>
-        <span className="hidden sm:block font-serif text-xl font-bold tracking-widest text-gold text-nowrap">InfoPapeda</span>
+        <span className="hidden md:block font-serif text-xl font-bold tracking-widest text-gold text-nowrap">InfoPapeda</span>
       </div>
-
-      {/* Main Menu Items (Desktop) */}
-      <div className="hidden md:flex items-center gap-8">
+      
+      <nav className="flex-1 mt-8 space-y-2 px-3 md:px-4">
         {[
-          { label: 'Sejarah', view: 'SEJARAH' as ViewState },
-          { label: 'Filosofi', view: 'FILOSOFI' as ViewState },
-          { label: 'Tim Kurator', view: 'PROFILE' as ViewState },
-          { label: 'Kontak', view: 'CONTACT' as ViewState }
+          { icon: <LayoutDashboard size={20} />, label: "Beranda", view: 'HOME' as ViewState },
+          { icon: <BookOpen size={20} />, label: "Sejarah", view: 'SEJARAH' as ViewState },
+          { icon: <Heart size={20} />, label: "Filosofi", view: 'FILOSOFI' as ViewState },
+          { icon: <Users size={20} />, label: "Tim Kurator", view: 'PROFILE' as ViewState },
+          { icon: <Gamepad2 size={20} />, label: "Sago Pop", view: 'GAME' as ViewState },
+          { icon: <PlusCircle size={20} />, label: isAdminMode ? "Dashboard" : "Login Admin", view: isAdminMode ? 'ADMIN_DASHBOARD' as ViewState : 'ADMIN_LOGIN' as ViewState },
         ].map((item) => (
-          <button 
+          <button
             key={item.label}
             onClick={() => setView(item.view)}
-            className={`font-sans text-sm tracking-widest uppercase transition-colors ${view === item.view ? 'text-gold font-bold' : 'text-cream/80 hover:text-gold'}`}
+            className={`w-full flex items-center justify-center md:justify-start gap-4 p-4 rounded-xl transition-all group ${view === item.view ? 'bg-gold text-deep-brown shadow-lg' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+            title={item.label}
           >
-            {item.label}
+            <span className={`${view === item.view ? 'text-deep-brown' : 'text-gold group-hover:scale-110 transition-transform'}`}>
+              {item.icon}
+            </span>
+            <span className="hidden md:block font-sans font-medium text-sm tracking-wide">{item.label}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
-      <div className="flex items-center gap-4">
-        {/* Profile / Menu button */}
+      <div className="p-4 border-t border-white/5">
         <button 
-          onClick={() => setIsSidebarOpen(true)}
-          className="text-gold p-2 hover:bg-white/5 rounded-full transition-colors flex items-center gap-2"
+          onClick={() => setView('CONTACT')}
+          className={`w-full flex items-center justify-center md:justify-start gap-4 p-4 rounded-xl transition-all ${view === 'CONTACT' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gold'}`}
         >
-          <span className="hidden sm:block font-sans text-xs uppercase tracking-widest text-cream/70">
-            {isAdminMode ? 'Admin' : 'Menu'}
-          </span>
-          <UserCircle size={28} />
+          <Search size={20} />
+          <span className="hidden md:block font-sans text-xs uppercase tracking-widest font-bold">Kontak Kami</span>
         </button>
+        {isAdminMode && (
+          <button onClick={() => { setIsAdminMode(false); setView('HOME'); addToast("Admin Logged Out"); }} className="mt-2 w-full flex items-center justify-center md:justify-start gap-4 p-4 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+            <LogOut size={20} />
+            <span className="hidden md:block font-sans font-medium text-sm">Keluar</span>
+          </button>
+        )}
       </div>
-    </nav>
+    </aside>
   );
 
   const renderHome = () => (
@@ -1110,10 +1068,9 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-gold/30 selection:text-deep-brown">
-      {renderNavbar()}
-      {renderRightSidebar()}
-      <main className="flex-1 flex flex-col pt-20 overflow-x-hidden">
+    <div className="min-h-screen flex selection:bg-gold/30 selection:text-deep-brown">
+      {renderSidebar()}
+      <main className="flex-1 ml-20 md:ml-64 flex flex-col overflow-x-hidden">
         <div className="flex-1">
           <AnimatePresence mode="wait">
             {view === 'HOME' && renderHome()}
