@@ -14,4 +14,4 @@ export interface FoodArticle {
   createdAt: number;
 }
 
-export type ViewState = 'HOME' | 'DETAIL' | 'ADMIN_LOGIN' | 'ADMIN_DASHBOARD' | 'PROFILE' | 'GAME' | 'DEVELOPER_INFO' | 'ABOUT' | 'CONTACT' | 'SEJARAH' | 'FILOSOFI';
+export type ViewState = 'HOME' | 'DETAIL' | 'ADMIN_LOGIN' | 'ADMIN_DASHBOARD' | 'PROFILE' | 'DEVELOPER_INFO' | 'ABOUT' | 'CONTACT' | 'SEJARAH' | 'FILOSOFI';

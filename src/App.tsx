@@ -36,7 +36,6 @@ import {
   Trash2, 
   Edit, 
   X, 
-  Gamepad2, 
   ArrowLeft,
   Search,
   BookOpen,
@@ -50,7 +49,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AOS from 'aos';
-import confetti from 'canvas-confetti';
 import firebaseConfig from '../firebase-applet-config.json';
 import { FoodArticle, SubSection, ViewState } from './types.ts';
 
@@ -274,10 +272,9 @@ export default function App() {
       <nav className="flex-1 mt-8 space-y-2 px-3 md:px-4">
         {[
           { icon: <LayoutDashboard size={20} />, label: "Beranda", view: 'HOME' as ViewState },
+          { icon: <Users size={20} />, label: "Biodata", view: 'PROFILE' as ViewState },
           { icon: <BookOpen size={20} />, label: "Sejarah", view: 'SEJARAH' as ViewState },
           { icon: <Heart size={20} />, label: "Filosofi", view: 'FILOSOFI' as ViewState },
-          { icon: <Users size={20} />, label: "Tim Kurator", view: 'PROFILE' as ViewState },
-          { icon: <Gamepad2 size={20} />, label: "Sago Pop", view: 'GAME' as ViewState },
           { icon: <PlusCircle size={20} />, label: isAdminMode ? "Dashboard" : "Login Admin", view: isAdminMode ? 'ADMIN_DASHBOARD' as ViewState : 'ADMIN_LOGIN' as ViewState },
         ].map((item) => (
           <button
@@ -295,13 +292,6 @@ export default function App() {
       </nav>
 
       <div className="p-4 border-t border-white/5">
-        <button 
-          onClick={() => setView('CONTACT')}
-          className={`w-full flex items-center justify-center md:justify-start gap-4 p-4 rounded-xl transition-all ${view === 'CONTACT' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gold'}`}
-        >
-          <Search size={20} />
-          <span className="hidden md:block font-sans text-xs uppercase tracking-widest font-bold">Kontak Kami</span>
-        </button>
         {isAdminMode && (
           <button onClick={() => { setIsAdminMode(false); setView('HOME'); addToast("Admin Logged Out"); }} className="mt-2 w-full flex items-center justify-center md:justify-start gap-4 p-4 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
             <LogOut size={20} />
@@ -383,7 +373,7 @@ export default function App() {
         </div>
         <div className="md:text-right">
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">
-            Hak Cipta <span onClick={() => { setView('GAME'); window.scrollTo(0,0); }} className="cursor-pointer hover:text-gold transition-colors p-1" title="Sago Pop Game">©</span> 2026
+            Hak Cipta © 2026
           </p>
           <p className="text-sm text-gray-400 font-serif italic italic hover:text-gold/80 transition-colors">
             "Dari Sagu, Menjadi Beribu <span onClick={() => { setView('DEVELOPER_INFO'); window.scrollTo(0,0); }} className="cursor-pointer hover:underline">Cerita</span>"
@@ -941,38 +931,6 @@ export default function App() {
     );
   };
 
-  const SagoPopGame = () => {
-    const [score, setScore] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(30);
-    const [gameActive, setGameActive] = useState(false);
-    const [bubbles, setBubbles] = useState<{ id: number, x: number, y: number }[]>([]);
-    useEffect(() => {
-      let timer: any, bubbleTimer: any;
-      if (gameActive && timeLeft > 0) {
-        timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-        bubbleTimer = setInterval(() => setBubbles(prev => [...prev, { id: Date.now(), x: Math.random() * 80 + 10, y: Math.random() * 80 + 10 }]), 800);
-      } else if (timeLeft === 0) { setGameActive(false); confetti(); }
-      return () => { clearInterval(timer); clearInterval(bubbleTimer); };
-    }, [gameActive, timeLeft]);
-    return (
-      <div className="p-6 md:p-12 bg-deep-brown min-h-screen flex flex-col items-center justify-center text-cream">
-        <div className="flex justify-start w-full mb-8">
-           <button onClick={() => setView('HOME')} className="text-gold flex items-center gap-2 hover:underline"><ArrowLeft size={16}/> Kembali</button>
-        </div>
-        <div className="text-center mb-10"><h2 className="text-4xl md:text-5xl font-serif text-gold mb-2">Sago Pop!</h2><p className="font-sans text-xs uppercase tracking-widest text-gray-400">Ketuk sagu untuk mengolahnya!</p></div>
-        <div className="relative w-full max-w-2xl aspect-video bg-black/40 rounded-3xl border-4 border-gold/30 overflow-hidden cursor-crosshair">
-          {!gameActive ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-10">{timeLeft === 0 && <h3 className="text-2xl md:text-3xl font-serif text-gold mb-4">Skor: {score}</h3>}<button onClick={() => { setScore(0); setTimeLeft(30); setGameActive(true); setBubbles([]); }} className="lux-btn-primary">{timeLeft === 0 ? "Main Lagi" : "Mulai Game"}</button></div>
-          ) : (
-            <>{bubbles.map(b => (
-                <button key={b.id} onClick={() => { setBubbles(p => p.filter(x => x.id !== b.id)); setScore(s => s + 1); }} style={{ left: `${b.x}%`, top: `${b.y}%` }} className="absolute w-12 h-12 bg-white/20 border-2 border-gold rounded-full flex items-center justify-center animate-bounce transition-transform active:scale-150"><div className="w-6 h-6 bg-gold rounded-full opacity-50" /></button>
-              ))}<div className="absolute top-4 left-4 md:top-6 md:left-6 font-serif text-lg md:text-2xl text-gold">Skor: {score}</div><div className="absolute top-4 right-4 md:top-6 md:right-6 font-serif text-lg md:text-2xl text-gold">Waktu: {timeLeft}s</div></>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   const renderSejarah = () => (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -1078,7 +1036,6 @@ export default function App() {
             {view === 'ADMIN_LOGIN' && renderAdminLogin()}
             {view === 'ADMIN_DASHBOARD' && renderAdminDashboard()}
             {view === 'PROFILE' && renderProfile()}
-            {view === 'GAME' && <SagoPopGame />}
             {view === 'DEVELOPER_INFO' && renderDeveloperInfo()}
             {view === 'ABOUT' && renderAbout()}
             {view === 'CONTACT' && renderContact()}
@@ -1086,7 +1043,7 @@ export default function App() {
             {view === 'FILOSOFI' && renderFilosofi()}
           </AnimatePresence>
         </div>
-        {view !== 'GAME' && renderFooter()}
+        {renderFooter()}
       </main>
       <div className="toast-container">{toasts.map(toast => (<Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} />))}</div>
     </div>
